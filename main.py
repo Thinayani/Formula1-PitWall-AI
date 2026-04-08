@@ -21,7 +21,7 @@ You have access to a database of F1 race results, qualifying data, fastest laps,
 pit stop strategies, and lap-by-lap telemetry from 2010 to 2023.
 
 When answering:
-- Be precise and specific — cite the race, year, driver, and team when relevant.
+- Be precise and specific, cite the race, year, driver, and team when relevant.
 - If the context doesn't contain enough information to answer, say so clearly.
   Do not invent statistics or results.
 - For strategy questions, explain the reasoning behind decisions when possible.
@@ -71,7 +71,7 @@ class QueryResponse(BaseModel):
 
 def build_prompt(question: str, context: str) -> str:
     return f"""Use the following retrieved F1 data to answer the question.
-If the data doesn't contain a direct answer, say so — do not guess.
+If the data doesn't contain a direct answer, say so do not guess.
 
 RETRIEVED CONTEXT:
 {context}
@@ -99,3 +99,31 @@ def chunks_to_sources(chunks: list[RetrievedChunk]) -> list[SourceChunk]:
 @app.get("/health")
 def health():
     return {"status": "ok", "model": LLM_MODEL}
+
+@app.post("/query", response_model=QueryResponse)
+def query(req: QueryRequest):
+    """
+    Full RAG query - returns a complete answer with source citations.
+    Use this for the standard chat interface.
+    """
+    if not req.question.strip():
+        raise HTTPException(status_code=400, detail="Question cannot be empty.")
+
+    # 1. Retrieve
+    chunks  = retrieve(req.question, top_n=req.top_n, season=req.season, data_type=req.data_type)
+    context = build_context_block(chunks)
+
+    # 2. Generate
+    message = anthropic_client.messages.create(
+        model      = LLM_MODEL,
+        max_tokens = MAX_TOKENS,
+        system     = SYSTEM_PROMPT,
+        messages   = [{"role": "user", "content": build_prompt(req.question, context)}],
+    )
+
+    answer = message.content[0].text if message.content else "No answer generated."
+
+    return QueryResponse(
+        answer  = answer,
+        sources = chunks_to_sources(chunks),
+    )
