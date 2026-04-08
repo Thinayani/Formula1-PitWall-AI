@@ -1,5 +1,6 @@
 import os
-
+import uuid
+from typing import Iterator
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -80,3 +81,52 @@ def extract_metadata(filename: str) -> dict:
         "data_type": "telemetry" if is_telemetry else "race_result",
         "source":    filename,
     }
+
+# Embedding
+
+def embed_texts(texts: list[str]) -> list[list[float]]:
+    """Call OpenAI embeddings API. Returns a list of embedding vectors."""
+    response = openai_client.embeddings.create(
+        model=EMBED_MODEL,
+        input=texts,
+    )
+    return [item.embedding for item in response.data]
+
+
+def chunk_file(path: Path) -> list[dict]:
+    """
+    Read a passage file, split into chunks, return list of
+    {text, metadata} dicts ready for embedding.
+    """
+    text     = path.read_text(encoding="utf-8").strip()
+    chunks   = splitter.split_text(text)
+    metadata = extract_metadata(path.name)
+
+    return [
+        {"text": chunk, "metadata": {**metadata, "chunk_index": i}}
+        for i, chunk in enumerate(chunks)
+        if chunk.strip()
+    ]
+
+# Batched upsert
+
+def batched(items: list, size: int) -> Iterator[list]:
+    for i in range(0, len(items), size):
+        yield items[i : i + size]
+
+
+def upsert_chunks(chunks: list[dict]):
+    """Embed and upsert a list of chunks to Qdrant."""
+    texts    = [c["text"] for c in chunks]
+    vectors  = embed_texts(texts)
+
+    points = [
+        PointStruct(
+            id      = str(uuid.uuid4()),
+            vector  = vec,
+            payload = {**chunk["metadata"], "text": chunk["text"]},
+        )
+        for chunk, vec in zip(chunks, vectors)
+    ]
+
+    qdrant.upsert(collection_name=COLLECTION_NAME, points=points)

@@ -93,3 +93,9 @@ def chunks_to_sources(chunks: list[RetrievedChunk]) -> list[SourceChunk]:
         )
         for c in chunks
     ]
+
+# Endpoints
+
+@app.get("/health")
+def health():
+    return {"status": "ok", "model": LLM_MODEL}
