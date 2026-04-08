@@ -47,7 +47,24 @@ with st.sidebar:
         options=["All", "Race results", "Telemetry"],
     )
 
-# Main are
+    season_val    = int(season_filter)    if season_filter != "All seasons"   else None
+    data_type_val = None
+    if data_type_filter == "Race results":
+        data_type_val = "race_result"
+    elif data_type_filter == "Telemetry":
+        data_type_val = "telemetry"
+
+    st.divider()
+
+    st.markdown("### Try asking")
+    for q in EXAMPLE_QUERIES:
+        if st.button(q, key=f"ex_{q[:20]}", use_container_width=True):
+            st.session_state.pending_query = q
+
+    st.divider()
+
+
+# Main area
 
 col_chat, col_sources = st.columns([2, 1])
 
