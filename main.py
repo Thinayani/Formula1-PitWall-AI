@@ -30,7 +30,7 @@ When answering:
   the retrieved context over general knowledge for specific facts and figures.
 """
 
-#App setup
+# App setup
 app = FastAPI(
     title="PitWall AI",
     description="F1 Strategy Intelligence powered by RAG",
@@ -46,3 +46,50 @@ app.add_middleware(
 )
 
 anthropic_client = Anthropic(api_key=ANTHROPIC_API_KEY)
+
+# Request/response models
+
+class QueryRequest(BaseModel):
+    question:  str
+    season:    Optional[int]   = None   # filter to a specific year
+    data_type: Optional[str]   = None   # "race_result" or "telemetry"
+    top_n:     int             = 5
+    stream:    bool            = False
+
+class SourceChunk(BaseModel):
+    race_name:  Optional[str]
+    season:     Optional[int]
+    data_type:  Optional[str]
+    score:      float
+    text_preview: str          # first 200 chars of the chunk
+
+class QueryResponse(BaseModel):
+    answer:  str
+    sources: list[SourceChunk]
+
+# RAG
+
+def build_prompt(question: str, context: str) -> str:
+    return f"""Use the following retrieved F1 data to answer the question.
+If the data doesn't contain a direct answer, say so — do not guess.
+
+RETRIEVED CONTEXT:
+{context}
+
+QUESTION:
+{question}
+
+ANSWER:"""
+
+
+def chunks_to_sources(chunks: list[RetrievedChunk]) -> list[SourceChunk]:
+    return [
+        SourceChunk(
+            race_name     = c.race_name,
+            season        = c.season,
+            data_type     = c.data_type,
+            score         = round(c.score, 4),
+            text_preview  = c.text[:200] + ("…" if len(c.text) > 200 else ""),
+        )
+        for c in chunks
+    ]
