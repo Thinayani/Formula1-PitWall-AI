@@ -127,3 +127,48 @@ def query(req: QueryRequest):
         answer  = answer,
         sources = chunks_to_sources(chunks),
     )
+
+
+@app.post("/query/stream")
+async def query_stream(req: QueryRequest):
+    """
+    Streaming version — yields answer tokens as they arrive.
+    The Streamlit UI uses this for a live typewriter effect.
+    """
+    if not req.question.strip():
+        raise HTTPException(status_code=400, detail="Question cannot be empty.")
+
+    chunks  = retrieve(req.question, top_n=req.top_n, season=req.season, data_type=req.data_type)
+    context = build_context_block(chunks)
+
+    async def token_generator() -> AsyncIterator[str]:
+        with anthropic_client.messages.stream(
+            model      = LLM_MODEL,
+            max_tokens = MAX_TOKENS,
+            system     = SYSTEM_PROMPT,
+            messages   = [{"role": "user", "content": build_prompt(req.question, context)}],
+        ) as stream:
+            for text in stream.text_stream:
+                yield text
+
+        # After the answer, emit source metadata as a JSON footer
+        import json
+        sources_json = json.dumps([s.model_dump() for s in chunks_to_sources(chunks)])
+        yield f"\n\n__SOURCES__{sources_json}"
+
+    return StreamingResponse(token_generator(), media_type="text/plain")
+
+
+@app.get("/stats")
+def stats():
+    """Return basic info about the indexed data."""
+    try:
+        from qdrant_client import QdrantClient as QC
+        q    = QC(url=os.getenv("QDRANT_URL", "http://localhost:6333"))
+        info = q.get_collection("pitwall_f1")
+        return {
+            "vectors_indexed": info.vectors_count,
+            "collection":      "pitwall_f1",
+        }
+    except Exception as e:
+        return {"error": str(e)}
