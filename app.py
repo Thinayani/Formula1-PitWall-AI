@@ -63,6 +63,29 @@ with st.sidebar:
 
     st.divider()
 
+    # Backend health
+    try:
+        resp = requests.get(f"{API_BASE}/health", timeout=2)
+        if resp.ok:
+            st.success("Backend: online")
+        else:
+            st.error("Backend: error")
+    except Exception:
+        st.error("Backend: offline\nStart with: uvicorn main:app --reload")
+
+    # Index stats
+    try:
+        stats = requests.get(f"{API_BASE}/stats", timeout=2).json()
+        if "vectors_indexed" in stats:
+            st.metric("Vectors indexed", f"{stats['vectors_indexed']:,}")
+    except Exception:
+        pass
+
+    if st.button("Clear chat", use_container_width=True):
+        st.session_state.messages = []
+        st.session_state.last_sources = []
+        st.rerun()
+
 
 # Main area
 
@@ -75,3 +98,18 @@ with col_chat:
     for msg in st.session_state.messages:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
+
+with col_sources:
+    st.markdown("### Sources")
+
+    if st.session_state.last_sources:
+        st.caption(f"{len(st.session_state.last_sources)} chunks retrieved")
+        for src in st.session_state.last_sources:
+            race  = src.get("race_name", "Unknown")
+            year  = src.get("season", "")
+            dtype = src.get("data_type", "")
+            score = src.get("score", 0)
+            preview = src.get("text_preview", "")
+
+            dtype_label = "Race result" if dtype == "race_result" else "Telemetry"
+            score_pct   = min(int(score * 10 + 70), 99) if score else 0
