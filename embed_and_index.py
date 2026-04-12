@@ -130,3 +130,48 @@ def upsert_chunks(chunks: list[dict]):
     ]
 
     qdrant.upsert(collection_name=COLLECTION_NAME, points=points)
+
+# Main 
+
+def main():
+    ensure_collection()
+
+    passage_files = sorted(PASSAGES_DIR.glob("*.txt"))
+    if not passage_files:
+        print(f"No passage files found in {PASSAGES_DIR}. Run the ingest scripts first.")
+        return
+
+    print(f"\nFound {len(passage_files)} passage files.")
+    print(f"Chunk size: {CHUNK_SIZE} chars  |  Overlap: {CHUNK_OVERLAP}  |  Batch: {BATCH_SIZE}\n")
+
+    total_chunks   = 0
+    total_upserted = 0
+
+    for i, path in enumerate(passage_files, 1):
+        print(f"[{i}/{len(passage_files)}] {path.name}", end=" ... ", flush=True)
+
+        chunks = chunk_file(path)
+        total_chunks += len(chunks)
+
+        for batch in batched(chunks, BATCH_SIZE):
+            try:
+                upsert_chunks(batch)
+                total_upserted += len(batch)
+            except Exception as e:
+                print(f"\n  [!] Upsert error: {e}")
+
+        print(f"{len(chunks)} chunks")
+
+    # Final collection info
+    info = qdrant.get_collection(COLLECTION_NAME)
+    print(f"\nDone.")
+    print(f"  Chunks indexed : {total_upserted}")
+    print(f"  Qdrant vectors : {info.vectors_count}")
+    print("Next: run python main.py to start the API server")
+
+
+if __name__ == "__main__":
+    if not OPENAI_API_KEY:
+        print("[!] OPENAI_API_KEY not set. Add it to your .env file.")
+    else:
+        main()
