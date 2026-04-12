@@ -30,7 +30,7 @@ OPENAI_API_KEY   = os.getenv("", "")
 # Clients
 
 openai_client = OpenAI(api_key=OPENAI_API_KEY)
-qdrant        = QdrantClient(url=QDRANT_URL)
+qdrant = QdrantClient(path="data/qdrant_storage")
 splitter      = RecursiveCharacterTextSplitter(
     chunk_size=CHUNK_SIZE,
     chunk_overlap=CHUNK_OVERLAP,

@@ -1,0 +1,30 @@
+# PitWall AI — Python dependencies
+# Install: pip install -r requirements.txt
+
+# Data ingestion
+requests
+fastf1
+pandas
+
+# Embeddings & vector DB
+openai
+qdrant-client
+langchain
+langchain-openai
+langchain-core
+
+# Reranking
+sentence-transformers
+
+# API backend
+fastapi==0.111.0
+uvicorn[standard]
+google-generativeai
+pydantic
+
+# UI
+streamlit
+
+# Utilities
+python-dotenv
+packaging

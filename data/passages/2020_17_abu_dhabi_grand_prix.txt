@@ -1,0 +1,15 @@
+Formula 1 — Abu Dhabi Grand Prix (2020)
+Circuit: Yas Marina Circuit, UAE. Race date: 2020-12-13. Round 17 of the 2020 season.
+
+Podium: P1 Max Verstappen (Red Bull), P2 Valtteri Bottas (Mercedes), P3 Lewis Hamilton (Mercedes).
+Max Verstappen driving for Red Bull won the race from grid position 1, completing 55 laps in 1:36:28.645.
+Top 10 finishers: P1 Max Verstappen (Red Bull) — 25 pts; P2 Valtteri Bottas (Mercedes) — 18 pts; P3 Lewis Hamilton (Mercedes) — 15 pts; P4 Alexander Albon (Red Bull) — 12 pts; P5 Lando Norris (McLaren) — 10 pts; P6 Carlos Sainz (McLaren) — 8 pts; P7 Daniel Ricciardo (Renault) — 7 pts; P8 Pierre Gasly (AlphaTauri) — 4 pts; P9 Esteban Ocon (Renault) — 2 pts; P10 Lance Stroll (Racing Point) — 1 pts.
+Retirements/incidents: Sergio Pérez — Transmission.
+
+Qualifying: Max Verstappen (Red Bull) took pole position with a lap of 1:35.246.
+Top 5 qualifying times: P1 Max Verstappen (1:35.246); P2 Valtteri Bottas (1:35.271); P3 Lewis Hamilton (1:35.332); P4 Lando Norris (1:35.497); P5 Alexander Albon (1:35.571).
+
+Fastest lap: Daniel Ricciardo (Renault) on lap 55 with a time of 1:40.926 (198.109 kph average).
+
+Pit stop strategies: 16 driver(s) on a one-stop strategy; 2 driver(s) on a two-stop strategy; 1 driver(s) on three or more stops.
+Fastest pit stop: max_verstappen on lap 10 in 21.289s.

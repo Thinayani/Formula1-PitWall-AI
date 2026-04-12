@@ -1,17 +1,14 @@
 # Fetches race results, qualifying, and fastest lap data from the Ergast API
 # and converts each race weekend into a readable text passage for embedding.
-#
-# Run: python ingest_ergast.py
-# Output: data/passages/<season>_<round>_<race_name>.txt
 
 import requests
 import time
 from pathlib import Path
 
 # Config
-SEASONS    = list(range(2010, 2024))
+SEASONS    = list(range(2020, 2024))
 OUTPUT_DIR = Path("data/passages")
-BASE_URL   = "https://ergast.com/api/f1"
+BASE_URL   = "https://api.jolpi.ca/ergast/f1"
 DELAY      = 0.5  # seconds between requests — be polite to the free API
 
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -182,7 +179,8 @@ def build_race_passage(season: int, race_meta: dict) -> str:
         # Quickest stop
         timed = [s for s in pitstops if s.get("duration")]
         if timed:
-            quickest = min(timed, key=lambda s: float(s["duration"]))
+            # quickest = min(timed, key=lambda s: float(s["duration"]))
+            quickest = min(timed, key=lambda s: float(s["duration"].split(":")[-1]) if ":" in s["duration"] else float(s["duration"]))
             lines.append(
                 f"Fastest pit stop: {quickest.get('driverId', '?')} on lap "
                 f"{quickest.get('lap', '?')} in {quickest.get('duration', '?')}s."

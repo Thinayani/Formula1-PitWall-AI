@@ -1,0 +1,15 @@
+Formula 1 — Spanish Grand Prix (2020)
+Circuit: Circuit de Barcelona-Catalunya, Spain. Race date: 2020-08-16. Round 6 of the 2020 season.
+
+Podium: P1 Lewis Hamilton (Mercedes), P2 Max Verstappen (Red Bull), P3 Valtteri Bottas (Mercedes).
+Lewis Hamilton driving for Mercedes won the race from grid position 1, completing 66 laps in 1:31:45.279.
+Top 10 finishers: P1 Lewis Hamilton (Mercedes) — 25 pts; P2 Max Verstappen (Red Bull) — 18 pts; P3 Valtteri Bottas (Mercedes) — 16 pts; P4 Lance Stroll (Racing Point) — 12 pts; P5 Sergio Pérez (Racing Point) — 10 pts; P6 Carlos Sainz (McLaren) — 8 pts; P7 Sebastian Vettel (Ferrari) — 6 pts; P8 Alexander Albon (Red Bull) — 4 pts; P9 Pierre Gasly (AlphaTauri) — 2 pts; P10 Lando Norris (McLaren) — 1 pts.
+Retirements/incidents: Charles Leclerc — Electronics.
+
+Qualifying: Lewis Hamilton (Mercedes) took pole position with a lap of 1:15.584.
+Top 5 qualifying times: P1 Lewis Hamilton (1:15.584); P2 Valtteri Bottas (1:15.643); P3 Max Verstappen (1:16.292); P4 Sergio Pérez (1:16.482); P5 Lance Stroll (1:16.589).
+
+Fastest lap: Valtteri Bottas (Mercedes) on lap 66 with a time of 1:18.183 (214.343 kph average).
+
+Pit stop strategies: 6 driver(s) on a one-stop strategy; 13 driver(s) on a two-stop strategy; 1 driver(s) on three or more stops.
+Fastest pit stop: max_verstappen on lap 21 in 21.532s.

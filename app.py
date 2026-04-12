@@ -1,3 +1,6 @@
+# Run: streamlit run app.py
+# Requires: main.py running in a separate terminal
+
 import streamlit as st
 import requests
 import json
@@ -7,9 +10,34 @@ import time
 
 st.set_page_config(
     page_title = "PitWall AI",
-    page_icon  = " ",
+    page_icon  = "",
     layout     = "wide",
 )
+
+# Styling
+st.markdown("""
+<style>
+    /* Sidebar */
+    section[data-testid="stSidebar"] { background: #0f0f0f; }
+    section[data-testid="stSidebar"] * { color: #e0e0e0 !important; }
+
+    /* Source cards */
+    .source-card {
+        background: #1a1a1a;
+        border: 1px solid #2a2a2a;
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin: 6px 0;
+        font-size: 13px;
+        color: #aaa;
+    }
+    .source-card .race { font-weight: 600; color: #e0e0e0; }
+    .source-card .score { color: #e8290b; font-size: 11px; }
+
+    /* Chat bubbles */
+    .stChatMessage { border-radius: 12px; }
+</style>
+""", unsafe_allow_html=True)
 
 # Constants
 
@@ -86,7 +114,6 @@ with st.sidebar:
         st.session_state.last_sources = []
         st.rerun()
 
-
 # Main area
 
 col_chat, col_sources = st.columns([2, 1])
@@ -98,6 +125,72 @@ with col_chat:
     for msg in st.session_state.messages:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
+
+    # Handle example query injection
+    prefill = st.session_state.pop("pending_query", None)
+
+    user_input = st.chat_input("Ask anything about F1 strategy...") or prefill
+
+    if user_input:
+        # Show user message
+        st.session_state.messages.append({"role": "user", "content": user_input})
+        with st.chat_message("user"):
+            st.markdown(user_input)
+
+        # Stream assistant response
+        with st.chat_message("assistant"):
+            placeholder   = st.empty()
+            full_response = ""
+            sources_raw   = []
+
+            try:
+                payload = {
+                    "question":  user_input,
+                    "season":    season_val,
+                    "data_type": data_type_val,
+                    "top_n":     5,
+                    "stream":    True,
+                }
+                with requests.post(
+                    f"{API_BASE}/query/stream",
+                    json=payload,
+                    stream=True,
+                    timeout=60,
+                ) as r:
+                    r.raise_for_status()
+                    buffer = ""
+                    for chunk in r.iter_content(chunk_size=None, decode_unicode=True):
+                        buffer += chunk
+
+                        # Check for sources footer sentinel
+                        if "__SOURCES__" in buffer:
+                            answer_part, sources_part = buffer.split("__SOURCES__", 1)
+                            full_response = answer_part
+                            try:
+                                sources_raw = json.loads(sources_part)
+                            except json.JSONDecodeError:
+                                pass
+                            placeholder.markdown(full_response)
+                            break
+                        else:
+                            placeholder.markdown(buffer + "▌")
+
+                    if not full_response:
+                        full_response = buffer
+
+            except requests.exceptions.ConnectionError:
+                full_response = (
+                    "Cannot reach the PitWall API. "
+                    "Make sure `uvicorn main:app --reload` is running."
+                )
+                placeholder.error(full_response)
+
+            except Exception as e:
+                full_response = f"Error: {e}"
+                placeholder.error(full_response)
+
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
+        st.session_state.last_sources = sources_raw
 
 with col_sources:
     st.markdown("### Sources")
@@ -113,3 +206,22 @@ with col_sources:
 
             dtype_label = "Race result" if dtype == "race_result" else "Telemetry"
             score_pct   = min(int(score * 10 + 70), 99) if score else 0
+
+            st.markdown(f"""
+<div class="source-card">
+  <div class="race">{race} {year}</div>
+  <div>{dtype_label}</div>
+  <div class="score">Relevance: {score_pct}%</div>
+  <div style="margin-top:6px;font-size:12px;color:#888">{preview}</div>
+</div>
+""", unsafe_allow_html=True)
+    else:
+        st.caption("Sources will appear here after your first query.")
+
+        st.markdown("""
+<div style="margin-top: 2rem; color: #555; font-size: 13px;">
+PitWall AI retrieves relevant race data, telemetry, and strategy information
+from an indexed database of F1 seasons 2010–2023, then synthesizes an answer
+using Claude.
+</div>
+""", unsafe_allow_html=True)

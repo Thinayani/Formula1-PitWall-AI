@@ -1,0 +1,15 @@
+Formula 1 — British Grand Prix (2020)
+Circuit: Silverstone Circuit, UK. Race date: 2020-08-02. Round 4 of the 2020 season.
+
+Podium: P1 Lewis Hamilton (Mercedes), P2 Max Verstappen (Red Bull), P3 Charles Leclerc (Ferrari).
+Lewis Hamilton driving for Mercedes won the race from grid position 1, completing 52 laps in 1:28:01.283.
+Top 10 finishers: P1 Lewis Hamilton (Mercedes) — 25 pts; P2 Max Verstappen (Red Bull) — 19 pts; P3 Charles Leclerc (Ferrari) — 15 pts; P4 Daniel Ricciardo (Renault) — 12 pts; P5 Lando Norris (McLaren) — 10 pts; P6 Esteban Ocon (Renault) — 8 pts; P7 Pierre Gasly (AlphaTauri) — 6 pts; P8 Alexander Albon (Red Bull) — 4 pts; P9 Lance Stroll (Racing Point) — 2 pts; P10 Sebastian Vettel (Ferrari) — 1 pts.
+Retirements/incidents: Daniil Kvyat — Accident; Kevin Magnussen — Collision; Nico Hülkenberg — Power Unit.
+
+Qualifying: Lewis Hamilton (Mercedes) took pole position with a lap of 1:24.303.
+Top 5 qualifying times: P1 Lewis Hamilton (1:24.303); P2 Valtteri Bottas (1:24.616); P3 Max Verstappen (1:25.325); P4 Charles Leclerc (1:25.427); P5 Lando Norris (1:25.782).
+
+Fastest lap: Max Verstappen (Red Bull) on lap 52 with a time of 1:27.097 (243.494 kph average).
+
+Pit stop strategies: 12 driver(s) on a one-stop strategy; 5 driver(s) on a two-stop strategy.
+Fastest pit stop: max_verstappen on lap 13 in 28.208s.

@@ -1,0 +1,15 @@
+Formula 1 — Bahrain Grand Prix (2021)
+Circuit: Bahrain International Circuit, Bahrain. Race date: 2021-03-28. Round 1 of the 2021 season.
+
+Podium: P1 Lewis Hamilton (Mercedes), P2 Max Verstappen (Red Bull), P3 Valtteri Bottas (Mercedes).
+Lewis Hamilton driving for Mercedes won the race from grid position 2, completing 56 laps in 1:32:03.897.
+Top 10 finishers: P1 Lewis Hamilton (Mercedes) — 25 pts; P2 Max Verstappen (Red Bull) — 18 pts; P3 Valtteri Bottas (Mercedes) — 16 pts; P4 Lando Norris (McLaren) — 12 pts; P5 Sergio Pérez (Red Bull) — 10 pts; P6 Charles Leclerc (Ferrari) — 8 pts; P7 Daniel Ricciardo (McLaren) — 6 pts; P8 Carlos Sainz (Ferrari) — 4 pts; P9 Yuki Tsunoda (AlphaTauri) — 2 pts; P10 Lance Stroll (Aston Martin) — 1 pts.
+Retirements/incidents: Pierre Gasly — Retired; Nicholas Latifi — Retired; Fernando Alonso — Brakes; Nikita Mazepin — Accident.
+
+Qualifying: Max Verstappen (Red Bull) took pole position with a lap of 1:28.997.
+Top 5 qualifying times: P1 Max Verstappen (1:28.997); P2 Lewis Hamilton (1:29.385); P3 Valtteri Bottas (1:29.586); P4 Charles Leclerc (1:29.678); P5 Pierre Gasly (1:29.809).
+
+Fastest lap: Valtteri Bottas (Mercedes) on lap 56 with a time of 1:32.090 (211.566 kph average).
+
+Pit stop strategies: 1 driver(s) on a one-stop strategy; 15 driver(s) on a two-stop strategy; 3 driver(s) on three or more stops.
+Fastest pit stop: max_verstappen on lap 39 in 23.848s.

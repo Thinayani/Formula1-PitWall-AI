@@ -1,0 +1,15 @@
+Formula 1 — Emilia Romagna Grand Prix (2020)
+Circuit: Autodromo Enzo e Dino Ferrari, Italy. Race date: 2020-11-01. Round 13 of the 2020 season.
+
+Podium: P1 Lewis Hamilton (Mercedes), P2 Valtteri Bottas (Mercedes), P3 Daniel Ricciardo (Renault).
+Lewis Hamilton driving for Mercedes won the race from grid position 2, completing 63 laps in 1:28:32.430.
+Top 10 finishers: P1 Lewis Hamilton (Mercedes) — 26 pts; P2 Valtteri Bottas (Mercedes) — 18 pts; P3 Daniel Ricciardo (Renault) — 15 pts; P4 Daniil Kvyat (AlphaTauri) — 12 pts; P5 Charles Leclerc (Ferrari) — 10 pts; P6 Sergio Pérez (Racing Point) — 8 pts; P7 Carlos Sainz (McLaren) — 6 pts; P8 Lando Norris (McLaren) — 4 pts; P9 Kimi Räikkönen (Alfa Romeo) — 2 pts; P10 Antonio Giovinazzi (Alfa Romeo) — 1 pts.
+Retirements/incidents: George Russell — Accident; Max Verstappen — Puncture; Kevin Magnussen — Illness; Esteban Ocon — Gearbox; Pierre Gasly — Water pressure.
+
+Qualifying: Valtteri Bottas (Mercedes) took pole position with a lap of 1:13.609.
+Top 5 qualifying times: P1 Valtteri Bottas (1:13.609); P2 Lewis Hamilton (1:13.706); P3 Max Verstappen (1:14.176); P4 Pierre Gasly (1:14.502); P5 Daniel Ricciardo (1:14.520).
+
+Fastest lap: Lewis Hamilton (Mercedes) on lap 63 with a time of 1:15.484 (234.121 kph average).
+
+Pit stop strategies: 9 driver(s) on a one-stop strategy; 9 driver(s) on a two-stop strategy; 1 driver(s) on three or more stops.
+Fastest pit stop: max_verstappen on lap 18 in 29.427s.

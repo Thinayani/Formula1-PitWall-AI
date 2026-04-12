@@ -1,0 +1,15 @@
+Formula 1 — Russian Grand Prix (2020)
+Circuit: Sochi Autodrom, Russia. Race date: 2020-09-27. Round 10 of the 2020 season.
+
+Podium: P1 Valtteri Bottas (Mercedes), P2 Max Verstappen (Red Bull), P3 Lewis Hamilton (Mercedes).
+Valtteri Bottas driving for Mercedes won the race from grid position 3, completing 53 laps in 1:34:00.364.
+Top 10 finishers: P1 Valtteri Bottas (Mercedes) — 26 pts; P2 Max Verstappen (Red Bull) — 18 pts; P3 Lewis Hamilton (Mercedes) — 15 pts; P4 Sergio Pérez (Racing Point) — 12 pts; P5 Daniel Ricciardo (Renault) — 10 pts; P6 Charles Leclerc (Ferrari) — 8 pts; P7 Esteban Ocon (Renault) — 6 pts; P8 Daniil Kvyat (AlphaTauri) — 4 pts; P9 Pierre Gasly (AlphaTauri) — 2 pts; P10 Alexander Albon (Red Bull) — 1 pts.
+Retirements/incidents: Carlos Sainz — Accident; Lance Stroll — Collision.
+
+Qualifying: Lewis Hamilton (Mercedes) took pole position with a lap of 1:31.304.
+Top 5 qualifying times: P1 Lewis Hamilton (1:31.304); P2 Max Verstappen (1:31.867); P3 Valtteri Bottas (1:31.956); P4 Sergio Pérez (1:32.317); P5 Daniel Ricciardo (1:32.364).
+
+Fastest lap: Valtteri Bottas (Mercedes) on lap 51 with a time of 1:37.030 (216.972 kph average).
+
+Pit stop strategies: 13 driver(s) on a one-stop strategy; 4 driver(s) on a two-stop strategy; 1 driver(s) on three or more stops.
+Fastest pit stop: max_verstappen on lap 25 in 28.748s.
