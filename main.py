@@ -1,4 +1,5 @@
 import os
+import json
 from typing import Optional, AsyncIterator
 
 from dotenv import load_dotenv
@@ -6,17 +7,20 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
-from anthropic import Anthropic
+import google.generativeai as genai
 
 from retriever import retrieve, build_context_block, RetrievedChunk
 
 load_dotenv()
 
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
-LLM_MODEL         = "claude-opus-4-6"
-MAX_TOKENS        = 1024
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+LLM_MODEL      = "gemini-1.5-pro"
+MAX_TOKENS     = 1024
 
-SYSTEM_PROMPT = """You are PitWall AI, an expert Formula 1 strategy analyst.
+genai.configure(api_key=GEMINI_API_KEY)
+gemini_client = genai.GenerativeModel(
+    model_name=LLM_MODEL,
+    system_instruction="""You are PitWall AI, an expert Formula 1 strategy analyst.
 You have access to a database of F1 race results, qualifying data, fastest laps,
 pit stop strategies, and lap-by-lap telemetry from 2010 to 2023.
 
@@ -29,8 +33,10 @@ When answering:
 - You may reference F1 knowledge from your training, but always prioritise
   the retrieved context over general knowledge for specific facts and figures.
 """
+)
 
 # App setup
+
 app = FastAPI(
     title="PitWall AI",
     description="F1 Strategy Intelligence powered by RAG",
@@ -39,39 +45,40 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],       # tighten in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-anthropic_client = Anthropic(api_key=ANTHROPIC_API_KEY)
-
 # Request/response models
 
 class QueryRequest(BaseModel):
     question:  str
-    season:    Optional[int]   = None   # filter to a specific year
-    data_type: Optional[str]   = None   # "race_result" or "telemetry"
-    top_n:     int             = 5
-    stream:    bool            = False
+    season:    Optional[int] = None
+    data_type: Optional[str] = None
+    top_n:     int           = 5
+    stream:    bool          = False
+
 
 class SourceChunk(BaseModel):
-    race_name:  Optional[str]
-    season:     Optional[int]
-    data_type:  Optional[str]
-    score:      float
-    text_preview: str          # first 200 chars of the chunk
+    race_name:    Optional[str]
+    season:       Optional[int]
+    data_type:    Optional[str]
+    score:        float
+    text_preview: str
+
 
 class QueryResponse(BaseModel):
     answer:  str
     sources: list[SourceChunk]
 
-# RAG
+
+# RAG helpers
 
 def build_prompt(question: str, context: str) -> str:
     return f"""Use the following retrieved F1 data to answer the question.
-If the data doesn't contain a direct answer, say so do not guess.
+If the data doesn't contain a direct answer, say so — do not guess.
 
 RETRIEVED CONTEXT:
 {context}
@@ -85,14 +92,15 @@ ANSWER:"""
 def chunks_to_sources(chunks: list[RetrievedChunk]) -> list[SourceChunk]:
     return [
         SourceChunk(
-            race_name     = c.race_name,
-            season        = c.season,
-            data_type     = c.data_type,
-            score         = round(c.score, 4),
-            text_preview  = c.text[:200] + ("…" if len(c.text) > 200 else ""),
+            race_name    = c.race_name,
+            season       = c.season,
+            data_type    = c.data_type,
+            score        = round(c.score, 4),
+            text_preview = c.text[:200] + ("…" if len(c.text) > 200 else ""),
         )
         for c in chunks
     ]
+
 
 # Endpoints
 
@@ -100,28 +108,21 @@ def chunks_to_sources(chunks: list[RetrievedChunk]) -> list[SourceChunk]:
 def health():
     return {"status": "ok", "model": LLM_MODEL}
 
+
 @app.post("/query", response_model=QueryResponse)
 def query(req: QueryRequest):
-    """
-    Full RAG query - returns a complete answer with source citations.
-    Use this for the standard chat interface.
-    """
     if not req.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty.")
 
-    # 1. Retrieve
     chunks  = retrieve(req.question, top_n=req.top_n, season=req.season, data_type=req.data_type)
     context = build_context_block(chunks)
 
-    # 2. Generate
-    message = anthropic_client.messages.create(
-        model      = LLM_MODEL,
-        max_tokens = MAX_TOKENS,
-        system     = SYSTEM_PROMPT,
-        messages   = [{"role": "user", "content": build_prompt(req.question, context)}],
+    response = gemini_client.generate_content(
+        build_prompt(req.question, context),
+        generation_config=genai.types.GenerationConfig(max_output_tokens=MAX_TOKENS),
     )
 
-    answer = message.content[0].text if message.content else "No answer generated."
+    answer = response.text if response.text else "No answer generated."
 
     return QueryResponse(
         answer  = answer,
@@ -131,10 +132,6 @@ def query(req: QueryRequest):
 
 @app.post("/query/stream")
 async def query_stream(req: QueryRequest):
-    """
-    Streaming version — yields answer tokens as they arrive.
-    The Streamlit UI uses this for a live typewriter effect.
-    """
     if not req.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty.")
 
@@ -142,17 +139,16 @@ async def query_stream(req: QueryRequest):
     context = build_context_block(chunks)
 
     async def token_generator() -> AsyncIterator[str]:
-        with anthropic_client.messages.stream(
-            model      = LLM_MODEL,
-            max_tokens = MAX_TOKENS,
-            system     = SYSTEM_PROMPT,
-            messages   = [{"role": "user", "content": build_prompt(req.question, context)}],
-        ) as stream:
-            for text in stream.text_stream:
-                yield text
+        response = gemini_client.generate_content(
+            build_prompt(req.question, context),
+            generation_config=genai.types.GenerationConfig(max_output_tokens=MAX_TOKENS),
+            stream=True,
+        )
+        for chunk in response:
+            if chunk.text:
+                yield chunk.text
 
-        # After the answer, emit source metadata as a JSON footer
-        import json
+        # Emit sources footer after the answer
         sources_json = json.dumps([s.model_dump() for s in chunks_to_sources(chunks)])
         yield f"\n\n__SOURCES__{sources_json}"
 
@@ -161,14 +157,10 @@ async def query_stream(req: QueryRequest):
 
 @app.get("/stats")
 def stats():
-    """Return basic info about the indexed data."""
     try:
         from qdrant_client import QdrantClient as QC
-        q    = QC(url=os.getenv("QDRANT_URL", "http://localhost:6333"))
+        q    = QC(path="data/qdrant_storage")
         info = q.get_collection("pitwall_f1")
-        return {
-            "vectors_indexed": info.vectors_count,
-            "collection":      "pitwall_f1",
-        }
+        return {"vectors_indexed": info.vectors_count, "collection": "pitwall_f1"}
     except Exception as e:
         return {"error": str(e)}
