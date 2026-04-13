@@ -4,7 +4,8 @@ from typing import Iterator
 from pathlib import Path
 
 from dotenv import load_dotenv
-from openai import OpenAI
+# from openai import OpenAI
+from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
     Distance,
@@ -12,24 +13,24 @@ from qdrant_client.models import (
     PointStruct,
     PayloadSchemaType,
 )
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 load_dotenv()
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
 PASSAGES_DIR     = Path("data/passages")
 COLLECTION_NAME  = "pitwall_f1"
-EMBED_MODEL      = "text-embedding-3-small"
-EMBED_DIM        = 1536
+EMBED_MODEL    = "all-MiniLM-L6-v2"
+EMBED_DIM      = 384
 CHUNK_SIZE       = 600    # characters — tuned for F1 race passages
 CHUNK_OVERLAP    = 80
 BATCH_SIZE       = 50     # upsert this many vectors at once
 
 QDRANT_URL       = os.getenv("QDRANT_URL", "http://localhost:6333")
-OPENAI_API_KEY   = os.getenv("", "")
 
 # Clients
 
-openai_client = OpenAI(api_key=OPENAI_API_KEY)
+embed_model = SentenceTransformer(EMBED_MODEL)
 qdrant = QdrantClient(path="data/qdrant_storage")
 splitter      = RecursiveCharacterTextSplitter(
     chunk_size=CHUNK_SIZE,
@@ -40,8 +41,11 @@ splitter      = RecursiveCharacterTextSplitter(
 # Qdrant collection setup
 
 def ensure_collection():
-    """Create the Qdrant collection if it doesn't exist."""
     existing = [c.name for c in qdrant.get_collections().collections]
+    if COLLECTION_NAME in existing:
+        qdrant.delete_collection(COLLECTION_NAME)
+        print(f"Deleted old collection '{COLLECTION_NAME}'")
+        existing = []
     if COLLECTION_NAME not in existing:
         print(f"Creating collection '{COLLECTION_NAME}'...")
         qdrant.create_collection(
@@ -85,12 +89,7 @@ def extract_metadata(filename: str) -> dict:
 # Embedding
 
 def embed_texts(texts: list[str]) -> list[list[float]]:
-    """Call OpenAI embeddings API. Returns a list of embedding vectors."""
-    response = openai_client.embeddings.create(
-        model=EMBED_MODEL,
-        input=texts,
-    )
-    return [item.embedding for item in response.data]
+    return embed_model.encode(texts, show_progress_bar=False).tolist()
 
 
 def chunk_file(path: Path) -> list[dict]:
@@ -158,7 +157,10 @@ def main():
                 upsert_chunks(batch)
                 total_upserted += len(batch)
             except Exception as e:
+                import traceback
                 print(f"\n  [!] Upsert error: {e}")
+                traceback.print_exc()
+                break
 
         print(f"{len(chunks)} chunks")
 
@@ -166,7 +168,7 @@ def main():
     info = qdrant.get_collection(COLLECTION_NAME)
     print(f"\nDone.")
     print(f"  Chunks indexed : {total_upserted}")
-    print(f"  Qdrant vectors : {info.vectors_count}")
+    print(f"  Qdrant vectors : {info.points_count}")
     print("Next: run python main.py to start the API server")
 
 
