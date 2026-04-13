@@ -13,7 +13,8 @@ from dataclasses import dataclass
 from typing import Optional
 
 from dotenv import load_dotenv
-from openai import OpenAI
+#from openai import OpenAI
+from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient
 from qdrant_client.models import Filter, FieldCondition, MatchValue, Range
 from sentence_transformers import CrossEncoder
@@ -33,7 +34,7 @@ OPENAI_API_KEY    = os.getenv("OPENAI_API_KEY", "")
 
 # Client
 
-openai_client = OpenAI(api_key=OPENAI_API_KEY)
+embed_model = SentenceTransformer("all-MiniLM-L6-v2")
 qdrant = QdrantClient(path="data/qdrant_storage")
 
 # Cross-encoder loaded once at import time (CPU-friendly model, ~25 MB)
@@ -61,12 +62,7 @@ class RetrievedChunk:
 # Query embedding
 
 def embed_query(query: str) -> list[float]:
-    response = openai_client.embeddings.create(
-        model=EMBED_MODEL,
-        input=[query],
-    )
-    return response.data[0].embedding
-
+    return embed_model.encode([query])[0].tolist()
 
 # Qdrant search
 
@@ -101,14 +97,14 @@ def vector_search(
     data_type: Optional[str] = None,
 ) -> list[dict]:
     """Run cosine similarity search in Qdrant, return raw hits."""
-    results = qdrant.search(
+    results = qdrant.query_points(
         collection_name=COLLECTION_NAME,
-        query_vector=query_vector,
+        query=query_vector,
         limit=k,
         query_filter=build_filter(season, data_type),
         with_payload=True,
-        score_threshold=0.30,   # discard very weak matches early
-    )
+        score_threshold=0.30,
+    ).points
     return [
         {
             "text":      hit.payload.get("text", ""),
@@ -117,7 +113,6 @@ def vector_search(
         }
         for hit in results
     ]
-
 
 # Reranking
 
