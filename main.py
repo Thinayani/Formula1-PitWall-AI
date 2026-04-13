@@ -31,7 +31,7 @@ When answering:
   the retrieved context over general knowledge for specific facts and figures.
 """
 
-# ── App setup ─────────────────────────────────────────────────────────────────
+# App setup
 
 app = FastAPI(
     title="PitWall AI",
@@ -47,7 +47,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Request / response models ─────────────────────────────────────────────────
+# Request/response models
 
 class QueryRequest(BaseModel):
     question:  str
@@ -70,7 +70,7 @@ class QueryResponse(BaseModel):
     sources: list[SourceChunk]
 
 
-# ── RAG helpers ───────────────────────────────────────────────────────────────
+# RAG
 
 def build_prompt(question: str, context: str) -> str:
     return f"""Use the following retrieved F1 data to answer the question.
@@ -98,7 +98,7 @@ def chunks_to_sources(chunks: list[RetrievedChunk]) -> list[SourceChunk]:
     ]
 
 
-# ── Endpoints ─────────────────────────────────────────────────────────────────
+# Endpoints
 
 @app.get("/health")
 def health():

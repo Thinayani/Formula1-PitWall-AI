@@ -1,12 +1,8 @@
-# retriever.py
-# PitWall AI — Script 4/6
 # Core RAG retrieval logic:
 #   1. Embed the user query
 #   2. Semantic search in Qdrant (top-K candidates)
 #   3. Rerank with a cross-encoder for precision
 #   4. Return top-N results with metadata
-#
-# This module is imported by main.py — not run directly.
 
 import os
 from dataclasses import dataclass
@@ -24,13 +20,9 @@ load_dotenv()
 # Config
 
 COLLECTION_NAME   = "pitwall_f1"
-EMBED_MODEL       = "text-embedding-3-small"
 RERANKER_MODEL    = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 CANDIDATE_K       = 20   # how many candidates to retrieve before reranking
 FINAL_TOP_N       = 5    # how many to return after reranking
-
-QDRANT_URL        = os.getenv("QDRANT_URL", "http://localhost:6333")
-OPENAI_API_KEY    = os.getenv("OPENAI_API_KEY", "")
 
 # Client
 
@@ -55,7 +47,7 @@ class RetrievedChunk:
 
     def to_context_string(self) -> str:
         """Format for injection into the LLM prompt."""
-        header = f"[{self.race_name} {self.season} — {self.data_type}]"
+        header = f"[{self.race_name} {self.season} - {self.data_type}]"
         return f"{header}\n{self.text}"
 
 
@@ -119,7 +111,7 @@ def vector_search(
 def rerank(query: str, candidates: list[dict], top_n: int = FINAL_TOP_N) -> list[dict]:
     """
     Score each candidate against the query using a cross-encoder.
-    Cross-encoders attend to both query and document together — much more
+    Cross-encoders attend to both query and document together - much more
     accurate than cosine similarity alone, but too slow to run on all vectors.
     That's why we first narrow down to CANDIDATE_K with vector search.
     """
